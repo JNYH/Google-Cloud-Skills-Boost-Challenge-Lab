@@ -14,4 +14,8 @@ Topics tested:
 * Create an HTTP(s) load balancer in front of two web servers
 
 
-This lab is recommended for students who have enrolled in the Create and Manage Cloud Resources quest. Are you ready for the challenge?
+This lab is recommended for students who have enrolled in the Create and Manage Cloud Resources quest. 
+
+https://google.qwiklabs.com/quests/120
+
+Are you ready for the challenge?
