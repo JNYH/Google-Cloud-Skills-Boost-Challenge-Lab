@@ -1,5 +1,14 @@
 Lab Name: Create and Manage Cloud Resources: Challenge Lab (GSP313)
 
+Topics tested:
+* Create an instance
+* Create a 3-node Kubernetes cluster and run a simple service
+* Create an HTTP(s) load balancer in front of two web servers
+
+This lab is recommended for students who have enrolled in the Create and Manage Cloud Resources quest. 
+https://google.qwiklabs.com/quests/120
+
+
 
 Task 1: Create a project jumphost instance
 
