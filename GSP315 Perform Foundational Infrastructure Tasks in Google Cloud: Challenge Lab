@@ -9,6 +9,7 @@ Topics tested:
 * Create a Cloud Function.
 * Remove the previous cloud engineer’s access from the memories project.
 
+
 --
 Task 1: Create a bucket
 Navigation menu > Cloud Storage > Buckets > Create
@@ -47,5 +48,6 @@ Task 4. Remove the previous cloud engineer
 Navigation menu > IAM & Admin > IAM
 Search for the "Username 2"
 (pencil icon) Edit principal > (dustin icon) Delete Role > Save
+
 
 --
