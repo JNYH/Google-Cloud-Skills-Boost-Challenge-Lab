@@ -1,0 +1,51 @@
+GSP315 Perform Foundational Infrastructure Tasks in Google Cloud: Challenge Lab
+
+This lab is recommended for students who have enrolled in the Google Cloud Skills Boost "Perform Foundational Infrastructure Tasks in Google Cloud" quest.
+https://google.qwiklabs.com/quests/118
+
+Topics tested:
+* Create a bucket for storing the photographs.
+* Create a Pub/Sub topic that will be used by a Cloud Function you create.
+* Create a Cloud Function.
+* Remove the previous cloud engineer’s access from the memories project.
+
+--
+Task 1: Create a bucket
+Navigation menu > Cloud Storage > Buckets > Create
+Name your bucket: bucket-name (from instructions) > Continue
+Choose where to store your data > Region: us-east1 (from instructions) > Continue
+Keep default for the remaining fields > Create > Confirm
+
+
+--
+Task 2: Create a Pub/Sub topic
+Navigation menu > Pub/Sub > Topics
+Create Topic > Topic ID: (from instructions) > Create Topic
+
+
+--
+Task 3: Create the thumbnail Cloud Function
+Navigation menu > Cloud Functions > Create Function
+Function name: (from instructions)
+Region: us-east1 (from instructions)
+Trigger type: Cloud Storage (from instructions)
+Event type: On (finalizing/creating) file in the selected bucket
+Bucket: BROWSE > Select qwiklabs bucket > Select
+Remaining default > Save > Next
+Runtime: Node.js 14 (from instructions)
+Entry point: thumbnail (see instructions)
+Replace the code for index.js; including line 15
+Replace the code for package.json
+Deploy
+Download the image from URL
+Navigation menu > Cloud Storage > Buckets > Select qwiklabs bucket > Upload Files
+Refresh 
+
+
+--
+Task 4. Remove the previous cloud engineer
+Navigation menu > IAM & Admin > IAM
+Search for the "Username 2"
+(pencil icon) Edit principal > (dustin icon) Delete Role > Save
+
+--
