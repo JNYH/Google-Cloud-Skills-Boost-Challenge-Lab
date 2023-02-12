@@ -42,6 +42,9 @@ Download the image from URL
 Navigation menu > Cloud Storage > Buckets > Select qwiklabs bucket > Upload Files
 Refresh 
 
+##Note: If this does not work, proceed to Task 4 first. The cloud function seems to take some time to be implemented. 
+##After Task 4, I returned here to upload another image file, and a thumbnail is generated immediately.
+
 
 --
 Task 4. Remove the previous cloud engineer
