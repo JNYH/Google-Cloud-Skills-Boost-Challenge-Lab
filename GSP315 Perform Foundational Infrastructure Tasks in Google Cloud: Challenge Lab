@@ -3,7 +3,7 @@ GSP315 Perform Foundational Infrastructure Tasks in Google Cloud: Challenge Lab
 This lab is recommended for students who have enrolled in the Google Cloud Skills Boost "Perform Foundational Infrastructure Tasks in Google Cloud" quest.
 https://google.qwiklabs.com/quests/118
 
-Topics tested:
+Quest Topics:
 * Create a bucket for storing the photographs.
 * Create a Pub/Sub topic that will be used by a Cloud Function you create.
 * Create a Cloud Function.
