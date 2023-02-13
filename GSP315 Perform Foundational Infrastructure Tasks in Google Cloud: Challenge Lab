@@ -3,11 +3,12 @@ GSP315 Perform Foundational Infrastructure Tasks in Google Cloud: Challenge Lab
 This lab is recommended for students who have enrolled in the Google Cloud Skills Boost "Perform Foundational Infrastructure Tasks in Google Cloud" quest.
 https://google.qwiklabs.com/quests/118
 
-Quest Topics:
+Topics tested:
 * Create a bucket for storing the photographs.
 * Create a Pub/Sub topic that will be used by a Cloud Function you create.
 * Create a Cloud Function.
 * Remove the previous cloud engineer’s access from the memories project.
+
 
 
 --
@@ -18,10 +19,12 @@ Choose where to store your data > Region: us-east1 (from instructions) > Continu
 Keep default for the remaining fields > Create > Confirm
 
 
+
 --
 Task 2: Create a Pub/Sub topic
 Navigation menu > Pub/Sub > Topics
 Create Topic > Topic ID: (from instructions) > Create Topic
+
 
 
 --
@@ -46,11 +49,13 @@ Refresh
 ##After Task 4, I returned here to upload another image file, and a thumbnail is generated immediately.
 
 
+
 --
 Task 4. Remove the previous cloud engineer
 Navigation menu > IAM & Admin > IAM
 Search for the "Username 2"
 (pencil icon) Edit principal > (dustin icon) Delete Role > Save
+
 
 
 --
