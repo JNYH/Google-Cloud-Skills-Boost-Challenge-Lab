@@ -1,0 +1,209 @@
+GSP323 Perform Foundational Data, ML, and AI Tasks in Google Cloud: Challenge Lab
+
+This lab is recommended for students who have enrolled in the "Perform Foundational Data, ML, and AI Tasks in Google Cloud" quest.
+https://www.cloudskillsboost.google/quests/117
+
+Topics tested:
+* Create a simple Dataproc job
+* Create a simple DataFlow job
+* Create a simple Dataprep job
+* Perform one of the three Google machine learning backed API tasks
+
+
+
+--
+##Task 1: Run a simple Dataflow job
+Navigation menu > Cloud Storage > Buckets > CREATE
+Name your bucket: qwiklab-projectid-marking (from instructions)
+Leave others to default > CREATE
+
+
+Navigation menu > BigQuery > Done
+Explorer > qwiklabs project ID > (3 dots) Create dataset
+Dataset ID: lab_xxx (from instructions)
+Leave others to default > Create Dataset
+
+
+#Run the following from the Cloud Shell: (get projectid from instructions)
+gsutil cp gs://cloud-training/gsp323/lab.csv gs://qwiklabs-gcp-01-a73494225485-marking/lab.csv
+gsutil cp gs://cloud-training/gsp323/lab.schema .
+cat lab.schema
+
+Copy below schema to clipboard:
+[
+    {"type":"STRING","name":"guid"},
+    {"type":"BOOLEAN","name":"isActive"},
+    {"type":"STRING","name":"firstname"},
+    {"type":"STRING","name":"surname"},
+    {"type":"STRING","name":"company"},
+    {"type":"STRING","name":"email"},
+    {"type":"STRING","name":"phone"},
+    {"type":"STRING","name":"address"},
+    {"type":"STRING","name":"about"},
+    {"type":"TIMESTAMP","name":"registered"},
+    {"type":"FLOAT","name":"latitude"},
+    {"type":"FLOAT","name":"longitude"}
+]
+
+Explorer > (expand to see created dataset) > (3 dots) > Create table
+Create table from: Google Cloud Storage
+Select file from GCS bucket: BROWSE > qwiklab-projectid-marking/lab.csv > SELECT
+File format: CSV
+Table name: customers_940 (from BigQuery output table)
+Schema > Edit as text > paste lab.schema from clipboard
+> CREATE TABLE
+
+
+Navigation menu > Dataflow > Jobs > CREATE JOB FROM TEMPLATE
+Job name: gsp323
+Regional endpoint: us-central1 (from instructions)
+Dataflow template: Process Data in Bulk (batch) > Text Files on Cloud Storage to BigQuery
+##Note: DO NOT select the item under “Process Data Continuously (stream)”
+Cloud Storage for JavaScript UDF path: (from instructions)
+Cloud Storage for JSON path: (from instructions)
+JavaScript UDF name: transform (from instructions)
+BigQuery output table: (from instructions)
+Cloud Storage input path: (from instructions)
+Temporary BigQuery directory: (from instructions)
+Temporary location: (from instructions)
+Optional parameters > Uncheck "Use default machine type" to access alternative CPU variant
+Series: E2 (from instructions)
+Machine type: e2-standard-2 (from instructions)
+> RUN JOB
+(DO NOT wait, proceed to next task)
+
+
+
+--
+##Task 2: Run a simple Dataproc job
+Navigation menu > Dataproc > Clusters > CREATE CLUSTER > Cluster on Compute Engine > CREATE
+Cluster Name: (leave as default)
+Region: us-central1 (from instructions)
+> Configure nodes (optional)
+Manager Node > Series: E2 (from instructions) > Machine type: (from instructions) 
+Worker Node > Series: E2 (from instructions) > Machine type: (from instructions) 
+> CREATE
+Status: wait for status to change from "Provisioning" to "Running"
+#Note: This job takes about 3 minutes to complete! (please wait before next step)
+
+After the cluster has been created > click cluster name to see Cluster details
+VM INSTANCES > click the "SSH" button in the row of the "Master" instance
+##Run the following command:
+hdfs dfs -cp gs://cloud-training/gsp323/data.txt /data.txt
+Close the SSH window
+
+(Cluster details) SUBMIT JOB > Configure as given:
+Job ID: (leave as default)
+Job type: Spark (from instructions)
+Main class or jar: (from instructions)
+Jar files: (from instructions)
+Arguments: /data.txt (from instructions)
+Max restarts per hour: 1 (from instructions)
+> SUBMIT
+Status: wait for change from "Running" to "Succeeded"
+#Note: This job takes about 1 minute to complete! (DO NOT wait, proceed to next task)
+
+
+
+--
+##Task 3: Run a simple Dataprep job
+Navigation menu > Dataprep > Accept > Agree > Allow 
+Login with the same account > Allow > Accept > Continue
+Import data from Cloud Storage into BigQuery > Cloud Storage > (pencil icon) Edit path
+Enter path (from instructions) gs://cloud-training/gsp323/runs.csv > Go > "Import & Add to Flow"
+Dataset "runs.csv" > Recipe "runs" > "Edit the Recipe" to wrangle
+
+Modify the table:
+1. After launching the Dataperop Transformer, scroll right to the end and select column10.
+2. Details pane > Unique Values > click "FAILURE" to show the context menu.
+3. (3 dots) Select "Delete rows with selected values" to remove all rows with the state of “FAILURE”.
+4. column9 > Click the downward arrow > Filter rows > On column values > Contains
+5. Filter rows pane > “Pattern to match”: enter the regex pattern /(^0$|^0\.0$)/
+6. Action section > select "Delete matching rows", then click the "Add" button.
+7. (dropdown arrow) Rename column: runid, userid, labid, lab_title, start, end, time, score, state
+8. Confirm there are 11 steps in the recipe > Run > Run
+#Note: This transformation process takes about 5 minutes to complete! (DO NOT wait, proceed to next task)
+
+
+
+--
+Task 4: AI
+##Part 1
+Use Google Cloud Speech API to analyze the audio file.
+#1.1 Create API_KEY in Cloud Console:
+Navigation menu > APIs & Services > Credentials
+CREATE CREDENTIALS > API key
+Your API key xxxxxxxxxxxxxxxxxxxxxxxxx > Copy to clipboard > Close
+export API_KEY=AIzaSyAyeDdoMXdmY72PbpqvIu7SqpzKzWddjw0
+
+#1.2 Run in Cloud Shell (paste from clipboard)
+export API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx
+
+#1.3 Create the following JSON file: (get audio "uri" from instructions)
+nano gcs-request.json
+{
+  "config": {
+  "encoding":"FLAC",
+  "languageCode": "en-US"
+  },
+  "audio": {
+  "uri":"gs://cloud-training/gsp323/task4.flac"
+  }
+}
+Ctrl+X > Y > Enter
+
+#1.4 Run the following: 
+curl -s -X POST -H "Content-Type: application/json" --data-binary @gcs-request.json \
+"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > gcs-result.json
+
+#1.5 Submit result to the correct location (from instruction)
+gsutil cp gcs-result.json gs://qwiklabs-gcp-01-a73494225485-marking/task4-gcs-877.result
+
+
+##Part 2
+Use Cloud Natural Language API to analyze the sentence from text about Odin.
+#2.1 Run the following in Cloud Shell:
+gcloud ml language analyze-entities --content="Old Norse texts portray Odin as one-eyed and long-bearded, frequently wielding a spear named Gungnir and wearing a cloak and a broad hat." > cnl-result.json
+
+#2.2 Submit result to the correct location (from instruction)
+gsutil cp cnl-result.json gs://qwiklabs-gcp-01-a73494225485-marking/task4-cnl-522.result
+
+
+#Part 3
+Use Google Video Intelligence and detect all text on the video.
+#3.1 Create API key.json in Cloud Console:
+Navigation menu > APIs & Services > Credentials
+Look for Name="Qwiklabs User Service Account" > click the corresponding Email to view the details.
+KEYS > ADD KEY > Create new key
+Choose "JSON" and click "CREATE" to download the Private Key file to your local computer.
+
+#3.2 Run the following in Cloud Shell:
+nano key.json
+[open downloaded Private Key with text editor, copy-paste content here]
+Ctrl+X > Y > Enter
+
+#3.3 Create the following JSON file: (get video "inputUri" from instructions)
+nano gvi-request.json
+{
+   "inputUri":"gs://spls/gsp154/video/train.mp4",
+   "features": [
+       "LABEL_DETECTION"
+   ]
+}
+Ctrl+X > Y > Enter
+
+#3.4 Run the following:
+gcloud auth activate-service-account --key-file key.json
+
+export TOKEN=$(gcloud auth print-access-token)
+
+curl -s -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer '$(gcloud auth print-access-token)'' \
+   'https://videointelligence.googleapis.com/v1/videos:annotate' \
+   -d @gvi-request.json > gvi-result.json
+
+#3.5 Submit result to the correct location (from instruction)
+gsutil cp gvi-result.json gs://qwiklabs-gcp-01-a73494225485-marking/task4-gvi-792.result
+
+--
+Congratulations! You have completed this Challenge Lab!
