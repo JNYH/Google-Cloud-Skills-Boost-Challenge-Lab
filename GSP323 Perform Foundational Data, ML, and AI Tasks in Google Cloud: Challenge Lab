@@ -205,5 +205,7 @@ curl -s -H 'Content-Type: application/json' \
 #3.5 Submit result to the correct location (from instruction)
 gsutil cp gvi-result.json gs://qwiklabs-gcp-01-a73494225485-marking/task4-gvi-792.result
 
+
+
 --
 Congratulations! You have completed this Challenge Lab!
