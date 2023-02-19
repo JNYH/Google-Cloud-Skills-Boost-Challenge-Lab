@@ -54,9 +54,7 @@ kubectl expose deployment hello-server \
 --
 Task 3: Set up an HTTP load balancer
 
-##Run command:
-
-##Below code is given in the instructions
+##Run below code (given in the instructions):
 cat << EOF > startup.sh
 #! /bin/bash
 apt-get update
@@ -82,7 +80,8 @@ gcloud compute instance-groups managed create web-server-group \
           --region us-east1
 
 
-##Create a firewall rule to allow traffic (80/tcp) ***please replace with the instructed firewall rule name ***
+##Create a firewall rule to allow traffic (80/tcp) 
+##***please replace with the instructed firewall rule name ***
 gcloud compute firewall-rules create firewall-rule-name-here \
           --allow tcp:80 \
           --network nucleus-vpc
