@@ -1,0 +1,249 @@
+Lab: Getting Started with Google Kubernetes Engine - Windows
+
+This lab is recommended for students who have enrolled in the "Google Cloud Fundamentals for Azure Professionals: Core Infrastructure" course. 
+https://www.cloudskillsboost.google/course_templates/67
+
+The lab is under the section "Containers in the Cloud"
+https://www.cloudskillsboost.google/course_sessions/2452532/labs/362351
+
+In this lab, you learn how to perform the following tasks:
+* Create a simple Windows app.
+* Containerize the app using Docker.
+* Create your Kubernetes cluster on Kubernetes Engine.
+* Deploy your app to a pod.
+* Allow external traffic to your pod.
+
+
+
+--
+Task 1: Sign in to the Cloud Console
+This is quite straightforward
+
+Start Lab > (right-click) Open Google Console > Open link in incognito window 
+> input Username and Password > Next > Understand > Agree and continue
+
+Run the command:
+gcloud services enable containerregistry.googleapis.com
+> Authorize
+
+
+
+--
+Task 2: Enable Google Container Registry API
+
+Google Cloud Console > (icon) Activate Cloud Shell > Continue
+RDP > (dropdown) Set Windows password
+Copy Username (student_04_70d7df5a0) > Set
+Copy Password (6^2RX$rld$<2h<E) > Close
+
+
+
+--
+Task 3: RDP into the Windows VM
+
+Navigation menu > Compute Engine > VM instances
+Instructions here can be improved. It says "Once inside the Windows VM...", so here's how to RDP into the Windows VM. 
+
+RDP > (dropdown) Download the RDP file
+Double-click the downloaded file (windowsvm.rdp) > input Password > Ok
+You'd see the VM's CMD prompt "C:\Users\student_04_70d7df5a0>"
+In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command
+> docker images
+
+
+
+--
+Task 4: Create a Windows container app
+In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command
+#Create a folder called my-windows-app and enter into the directory:
+> mkdir my-windows-app
+> cd my-windows-app
+
+#Create folder named content:
+> mkdir content
+
+#Create a file named index.html in the content folder:
+> call > content\index.html
+
+#Edit index.html:
+> notepad content\index.html
+
+#Copy-paste the following content to index.html:
+<html>
+  <head>
+    <title>Windows containers</title>
+  </head>
+  <body>
+    <p>Windows containers are cool!</p>
+  </body>
+</html>
+
+#Save the index.html. 
+File > Save 
+File > Exit
+
+
+
+--
+Task 5: Build Docker image
+In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the commands.
+
+#Create a Dockerfile for the Docker image.
+> call > Dockerfile
+
+#Edit the dockerfile:
+> notepad Dockerfile
+
+#Copy-paste the following contents in the Dockerfile:
+FROM mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2019
+RUN powershell -NoProfile -Command Remove-Item -Recurse C:\inetpub\wwwroot\*
+WORKDIR /inetpub/wwwroot
+COPY content/ .
+
+#Save the Dockerfile. 
+File > Save
+File > Exit
+
+#Build the Docker image and tag it with Google Container Registry (GCR) and your project id. 
+#### replace [PROJECT_ID] with your Qwiklabs project id ####
+> docker build -t gcr.io/qwiklabs-gcp-01-fa72fcea87c6/iis-site-windows .
+#this will take some time, about 10 minutes. It feels that the CMD prompt is hang at "Download complete", but try to click in the CMD prompt window and hit <Enter>, then you will see 
+"Successfully tagged gcr.io/qwiklabs-gcp-01-fa72fcea87c6/iis-site-windows:latest". 
+
+#Once the Docker image is built, you can see it along with its IIS dependency:
+> docker images
+
+#Run the following command to run the Windows container from your VM instance:
+#### replace [PROJECT_ID] with your Qwiklabs project id ####
+> docker run -d -p 80:80 gcr.io/qwiklabs-gcp-01-fa72fcea87c6/iis-site-windows
+
+Google Cloud Console > Navigation menu > Compute Engine > VM instances > copy the External IP address
+Open a new browser tab, and paste the External IP address in URL > Run to see "Windows containers are cool!"
+
+
+
+--
+Task 6: Push container image to Google Container Registry
+Run Task 6 codes in VM's CMD prompt
+
+#Configure Docker to point to Google Container Registry (GCR):
+> gcloud auth configure-docker
+#When prompted enter Y.
+
+#Push the image to Container Repository. 
+#### Remember to replace [PROJECT_ID] with your Qwiklabs project id ####
+> docker push gcr.io/qwiklabs-gcp-01-fa72fcea87c6/iis-site-windows
+
+#If you return to the Cloud Console, you can see the image
+Navigation Menu > Container Registry > Images > Repositories
+
+
+
+--
+Task 7: Start a Kubernetes Engine cluster
+Google Cloud Console > (icon) Activate Cloud Shell > Continue
+
+#Run the following command in Cloud Shell to set your environment variables:
+#### Remember to replace [PROJECT_ID] with your Qwiklabs project id ####
+export PROJECT_ID=qwiklabs-gcp-01-fa72fcea87c6
+gcloud config set project ${PROJECT_ID}
+export ZONE=us-central1-a
+gcloud config set compute/zone ${ZONE}
+
+#Start a Kubernetes cluster managed by Kubernetes Engine:
+export CLUSTER_NAME=win-cluster
+gcloud container clusters create ${CLUSTER_NAME} \
+  --enable-ip-alias \
+  --num-nodes=2 
+#This will take quite some time, about 10 minutes (...working...), until you see "STATUS: RUNNING"
+
+#After the cluster is created, check your installed version of Kubernetes using the kubectl version command:
+kubectl version
+
+
+
+--
+Task 8: Task 8: Add Windows Node to cluster
+#run Task 8 codes in Google Cloud Console > Cloud Shell
+#Once we have the basic GKE cluster, add a Windows pool for Windows nodes to it:
+gcloud container node-pools create windows-node-pool \
+  --cluster=${CLUSTER_NAME} \
+  --image-type=WINDOWS_LTSC_CONTAINERD \
+  --no-enable-autoupgrade \
+  --machine-type=n1-standard-2
+
+#This will take quite some time, about 10 minutes (...working...), until you see "NODE_VERSION: 1.24.9-gke.2000". 
+
+
+
+--
+Task 9: Verify cluster initialization
+
+#In Cloud Shell run the following command:
+gcloud container clusters get-credentials ${CLUSTER_NAME}
+
+#Before using the cluster, wait for windows.config.common-webhooks.networking.gke.io is created.
+kubectl get mutatingwebhookconfigurations
+
+
+
+--
+Task 10: Run Windows container as a pod in GKE
+#run Task 10 codes in Google Cloud Console > Cloud Shell
+
+#Create and open a file called iis-site-windows.yaml with nano using the following command:
+nano iis-site-windows.yaml
+
+#Copy-paste following into the file 
+#### Remember to replace [PROJECT_ID] with your Qwiklabs project id ####
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iis-site-windows
+  labels:
+    app: iis-site-windows
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: iis-site-windows
+  template:
+    metadata:
+      labels:
+        app: iis-site-windows
+    spec:
+      nodeSelector:
+        kubernetes.io/os: windows
+      containers:
+      - name: iis-site-windows
+        image: gcr.io/qwiklabs-gcp-01-fa72fcea87c6/iis-site-windows
+        ports:
+        - containerPort: 80
+
+#Ctrl+X > Y > Enter
+
+#Create a deployment for the cluster with the following command:
+kubectl apply -f iis-site-windows.yaml
+
+#Check the deployment with the following command:
+kubectl get deployment,pods
+
+
+
+--
+Task 11: Create a Kubernetes Service
+#run Task 11 codes in Google Cloud Console > Cloud Shell
+
+#Create a Kubernetes service with LoadBalancer type:
+kubectl expose deployment iis-site-windows --type="LoadBalancer"
+
+#In a few minutes, you should see a new service with an external IP:
+kubectl get service
+
+#Open a browser window and go to the EXTERNAL-IP (34.171.27.215) of the load balancer, you will see "Windows containers are cool!"
+
+
+
+--
+##Congratulations! Done with the lab!
