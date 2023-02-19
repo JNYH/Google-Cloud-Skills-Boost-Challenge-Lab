@@ -134,10 +134,10 @@ Use Google Cloud Speech API to analyze the audio file.
 Navigation menu > APIs & Services > Credentials
 CREATE CREDENTIALS > API key
 Your API key xxxxxxxxxxxxxxxxxxxxxxxxx > Copy to clipboard > Close
-export API_KEY=AIzaSyAyeDdoMXdmY72PbpqvIu7SqpzKzWddjw0
 
 #1.2 Run in Cloud Shell (paste from clipboard)
 export API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx
+for example, export API_KEY=AIzaSyAyeDdoMXdmY72PbpqvIu7SqpzKzWddjw0
 
 #1.3 Create the following JSON file: (get audio "uri" from instructions)
 nano gcs-request.json
