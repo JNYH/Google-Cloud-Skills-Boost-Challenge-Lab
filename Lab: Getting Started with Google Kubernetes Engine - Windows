@@ -20,7 +20,7 @@ Task 1: Sign in to the Cloud Console
 This is quite straightforward
 
 Start Lab > (right-click) Open Google Console > Open link in incognito window 
-> input Username and Password > Next > Understand > Agree and continue
+> input Username and Password > Next > I Understand > check, check, Agree and Continue
 
 Run the command:
 gcloud services enable containerregistry.googleapis.com
