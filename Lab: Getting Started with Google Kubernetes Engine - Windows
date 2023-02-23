@@ -22,7 +22,7 @@ This is quite straightforward
 Start Lab > (right-click) Open Google Console > Open link in incognito window 
 > input Username and Password > Next > I Understand > check, check, Agree and Continue
 
-Run the command:
+Run the command below:
 gcloud services enable containerregistry.googleapis.com
 > Authorize
 
@@ -46,15 +46,15 @@ Instructions here can be improved. It says "Once inside the Windows VM...", so h
 
 RDP > (dropdown) Download the RDP file
 Double-click the downloaded file (windowsvm.rdp) > input Password > Ok
-You'd see the VM's CMD prompt "C:\Users\student_04_70d7df5a0>"
-In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command
+You'd see the VM's CMD prompt "C:\Users\student_04_70d7df5a0>". If you do not, go to Ctrl+Alt+Delete > Task Manager > File > Run new task > CMD
+In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command below:
 > docker images
 
 
 
 --
 Task 4: Create a Windows container app
-In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command
+In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the command below:
 #Create a folder called my-windows-app and enter into the directory:
 > mkdir my-windows-app
 > cd my-windows-app
@@ -86,7 +86,7 @@ File > Exit
 
 --
 Task 5: Build Docker image
-In the VM Windows CMD prompt (C:\Users\student_04_70d7df5a0>), run the commands.
+In the Windows VM CMD prompt (C:\Users\student_04_70d7df5a0>), run the commands below:
 
 #Create a Dockerfile for the Docker image.
 > call > Dockerfile
@@ -124,7 +124,7 @@ Open a new browser tab, and paste the External IP address in URL > Run to see "W
 
 --
 Task 6: Push container image to Google Container Registry
-Run Task 6 codes in VM's CMD prompt
+#run Task 6 codes in VM's CMD prompt
 
 #Configure Docker to point to Google Container Registry (GCR):
 > gcloud auth configure-docker
@@ -179,7 +179,7 @@ gcloud container node-pools create windows-node-pool \
 --
 Task 9: Verify cluster initialization
 
-#In Cloud Shell run the following command:
+#In the Cloud Shell run the following command:
 gcloud container clusters get-credentials ${CLUSTER_NAME}
 
 #Before using the cluster, wait for windows.config.common-webhooks.networking.gke.io is created.
