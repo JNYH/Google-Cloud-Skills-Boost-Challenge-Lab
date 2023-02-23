@@ -1,0 +1,276 @@
+GSP355 Manage PostgreSQL Databases on Cloud SQL: Challenge Lab
+https://www.cloudskillsboost.google/focuses/23465?parent=catalog
+
+This lab is recommended for students who have enrolled in the "Manage PostgreSQL Databases on Cloud SQL" quest.
+https://www.cloudskillsboost.google/quests/186
+
+In this challenge lab, you are required to perform the following tasks:
+* Migrate a stand-alone PostgreSQL database to Cloud SQL for PostgreSQL using Database Migration Services.
+* Promote the Cloud SQL database to a stand-alone instance for reading and writing.
+* Secure the database using IAM DB Authentication.
+* Perform a point-in-time recovery on the database.
+
+
+
+--
+####Task 1. Migrate a stand-alone PostgreSQL database to a Cloud SQL for PostgreSQL instance
+
+##1.Enable the Google Cloud APIs required for Database Migration Services.
+Navigation menu > APIs & Services > Enabled APIs & services
++ENABLE APIS & SERVICES > (search bar) Database Migration API > Database Migration API > ENABLE
+(left pane) Enabled APIs & services > 
++ENABLE APIS & SERVICES > (search bar) Service Networking API > Service Networking API > ENABLE
+
+##2.Upgrade the target databases on the "postgres-vm" virtual machine with the "pglogical" database extension.
+Navigation menu > Compute Engine > VM instances > (postgresql-vm) SSH
+sudo apt update
+
+##3.Install and configure the "pglogical" database extension
+#note [pglogical database extension package] = postgresql-13-pglogical
+sudo apt install [pglogical database extension package]
+
+##4.To complete the configuration 
+#note: [PostgreSQL configuration 1] = /etc/postgresql/13/main/postgresql.conf
+sudo nano [PostgreSQL configuration 1]
+Alt+/
+# Add settings for extensions here
+shared_preload_libraries = 'pglogical'
+wal_level = 'logical'
+wal_sender_timeout = 0
+max_replication_slots = 10
+max_wal_senders = 10
+max_worker_processes = 10
+listen_addresses = '*'
+Ctrl+X  Y  Enter
+
+#note: [PostgreSQL configuration 2] = /etc/postgresql/13/main/pg_hba.conf 
+sudo nano [PostgreSQL configuration 2]
+Alt+/
+host    all             all               0.0.0.0/0             md5
+Ctrl+X  Y  Enter
+
+##5.Create a dedicated user for database migration
+sudo systemctl restart postgresql@13-main
+sudo su - postgres
+psql
+postgres=> \c postgres;
+You are now connected to database "postgres" as user "postgres".
+postgres=> CREATE EXTENSION pglogical;
+CREATE EXTENSION
+postgres=> \c orders;
+You are now connected to database "orders" as user "postgres".
+orders=> CREATE EXTENSION pglogical;
+CREATE EXTENSION
+
+##6.Configure username and password
+#note: [username] = migration_user
+#note: [password] = DMS_1s_cool!
+#note: [database] = orders 
+orders=> \c postgres;
+You are now connected to database "postgres" as user "postgres".
+postgres=> CREATE USER [username] PASSWORD '[password]';
+CREATE ROLE
+postgres=> ALTER DATABASE [database] OWNER TO [username];
+ALTER DATABASE
+postgres=> ALTER ROLE [username] WITH REPLICATION;
+ALTER ROLE
+
+##7.Grant that user the required privileges and permissions
+postgres=> 
+GRANT USAGE ON SCHEMA pglogical TO [username];
+GRANT ALL ON SCHEMA pglogical TO [username];
+GRANT SELECT ON pglogical.tables TO [username];
+GRANT SELECT ON pglogical.depend TO [username];
+GRANT SELECT ON pglogical.local_node TO [username];
+GRANT SELECT ON pglogical.local_sync_status TO [username];
+GRANT SELECT ON pglogical.node TO [username];
+GRANT SELECT ON pglogical.node_interface TO [username];
+GRANT SELECT ON pglogical.queue TO [username];
+GRANT SELECT ON pglogical.replication_set TO [username];
+GRANT SELECT ON pglogical.replication_set_seq TO [username];
+GRANT SELECT ON pglogical.replication_set_table TO [username];
+GRANT SELECT ON pglogical.sequence_state TO [username];
+GRANT SELECT ON pglogical.subscription TO [username];
+
+postgres=> \c orders;
+You are now connected to database "orders" as user "postgres".
+
+orders=> 
+GRANT USAGE ON SCHEMA pglogical TO [username];
+GRANT ALL ON SCHEMA pglogical TO [username];
+GRANT SELECT ON pglogical.tables TO [username];
+GRANT SELECT ON pglogical.depend TO [username];
+GRANT SELECT ON pglogical.local_node TO [username];
+GRANT SELECT ON pglogical.local_sync_status TO [username];
+GRANT SELECT ON pglogical.node TO [username];
+GRANT SELECT ON pglogical.node_interface TO [username];
+GRANT SELECT ON pglogical.queue TO [username];
+GRANT SELECT ON pglogical.replication_set TO [username];
+GRANT SELECT ON pglogical.replication_set_seq TO [username];
+GRANT SELECT ON pglogical.replication_set_table TO [username];
+GRANT SELECT ON pglogical.sequence_state TO [username];
+GRANT SELECT ON pglogical.subscription TO [username];
+GRANT USAGE ON SCHEMA public TO [username];
+GRANT ALL ON SCHEMA public TO [username];
+GRANT SELECT ON public.distribution_centers TO [username];
+GRANT SELECT ON public.inventory_items TO [username];
+GRANT SELECT ON public.order_items TO [username];
+GRANT SELECT ON public.products TO [username];
+GRANT SELECT ON public.users TO [username];
+\dt
+ALTER TABLE public.distribution_centers OWNER TO [username];
+ALTER TABLE public.inventory_items OWNER TO [username];
+ALTER TABLE public.order_items OWNER TO [username];
+ALTER TABLE public.products OWNER TO [username];
+ALTER TABLE public.users OWNER TO [username];
+\dt
+
+orders=> ALTER TABLE inventory_items ADD CONSTRAINT inventory_items_pkey PRIMARY KEY (id);
+ALTER TABLE
+orders=> \q
+exit
+
+> Check my progress > Step Completed!
+
+
+####Task 1B. Migrate the stand-alone PostgreSQL database to a Cloud SQL for PostgreSQL instance
+##2.You must configure the connection profile using the internal ip-address of the source compute instance
+(Windows tab 1)
+Navigation menu > Compute Engine > VM instances
+Copy-paste below info to Notepad
+VM instance name = postgresql-vm
+Internal IP = 10.128.32.32
+External IP = 10.122.30.30
+
+##1.Create a new Database Migration Service connection profile
+(right-click > Duplicate > to get Windows tab 2)
+Navigation menu > SQL > MIGRATE DATA > Connection profiles > CREATE PROFILE
+Database engine = PostgreSQL
+Connection profile name = postgresql-vm
+Hostname or IP address = 10.128.31.32
+Username = migration_user (from instructions)
+Password = DMS_1s_cool!   (from instructions)
+Region = us-central1      (from instructions)
+> CREATE
+
+
+##3.Create a new continuous Database Migration Service job.
+(left pane) Migration jobs > CREATE MIGRATION JOB 
+#Get started
+Migration job name = postgresql-vm-migration
+Source database engine = PostgreSQL
+Destination database engine = Cloud SQL for PostgreSQL
+Destination region = us-central1 (from instructions)
+Migration job type = Continuous
+> SAVE & CONTINUE
+
+#Define a source
+Select source connection profile = postgresql-vm
+> SAVE & CONTINUE
+
+#Create a destination
+Destination Instance ID = retail-postgres30 (from instructions)
+Password = supersecret!
+Database version = Cloud SQL for PostgreSQL 13
+(ENABLE) Private IP > ALLOCATE & CONNECT
+(this takes about 3 minutes)
+Machine Type = Standard
+(select) 1 vCPU
+> CREATE & CONTINUE > CREATE DESTINATION & CONTINUE 
+(this takes about 3 minutes, do NOT wait, move to next step)
+
+##4.Test and then start the continuous migration job
+#Define connectivity method
+Connectivity method = VPC peering
+VPC = default
+(below button is available when the job before ends)
+> CONFIGURE & CONTINUE
+> TEST JOB
+> CREATE & START JOB > CREATE & START
+
+
+
+--
+####Task 2. Promote a Cloud SQL to be a stand-alone instance for reading and writing data
+Wait for Status to change from "Starting" to "Running Full dump in progress" to "Running CDC in progress"
+(Migration job name) postgresql-vm-migration > PROMOTE > PROMOTE
+Status will change to "Running Promote in progress"
+then after 2 minutes, Status will become "Completed"
+
+> Check my progress > Step Completed!
+
+
+
+--
+####Task 3. Implement Cloud SQL for PostgreSQL IAM database authentication
+
+##1.Patch the "Migrated Cloud SQL for PostgreSQL Instance ID" Cloud SQL instance
+Navigation menu -> SQL > Connections
+> (tab) Networking > (Public IP) ADD NETWORK
+New network Name = postgres-vm (from instructions)
+Network = 10.122.30.30 (this is External IP of postgresql-vm VM instance, copied to Notepad)
+> DONE > SAVE
+(this takes about 1 minute)
+
+##2.Create a Cloud SQL IAM user using the lab student ID
+Navigation menu -> SQL > Users > ADD USER ACCOUNT > (radio button) Cloud IAM
+Principal = student-03-4b4a6d8b687e@qwiklabs.net (from instructions)
+> ADD
+
+##3.Grant "SELECT" permission to the Cloud IAM user for the "distribution_centers" table.
+Navigation menu -> SQL > Overview > (Connect to this instance) OPEN CLOUD SHELL > CONTINUE
+
+#run below in Cloud Shell
+#note [IAM_user] = student-03-4b4a6d8b687e@qwiklabs.net (from instructions)
+#note [table_name] = distribution_centers (from instructions)
+#note [SQL instance] = retail-postgres30 (from instructions)
+gcloud sql connect [SQL instance] --user=postgres --quiet
+> AUTHORIZE
+Password: supersecret!
+postgres=> \c orders;
+Password: supersecret!
+orders=> \dt
+orders=> grant select on [table_name] to "[IAM_user]";
+
+
+
+--
+####Task 4. Configure and test point-in-time recovery
+
+##1.Enable backups on the Cloud SQL for PostgreSQL instance.
+Navigation menu -> SQL > Overview > EDIT
+
+##2.Enable point-in-time recovery and set the number of retained transaction log days.
+Data Protection > (ENABLE) Enable point-in-time recovery > ADVANCED OPTIONS 
+> Days of logs = 7 (from instructions)
+> SAVE
+(this will take about 2 minutes)
+
+##3. Make a note of the timestamp for the point-in-time you wish to restore to.
+#run below in Cloud Shell
+$ date --rfc-3339=seconds
+Copy-paste the output timestamp to Notepad, for example: 2023-02-23 05:56:02+00:00
+
+##4.Make changes to the database after this timestamp, ie, add a record to the "orders.distribution_centers" table.
+Navigation menu -> SQL > Overview > (Connect to this instance) OPEN CLOUD SHELL > CONTINUE
+
+#run below in Cloud Shell
+#note [SQL instance] = retail-postgres30 (from instructions)
+gcloud sql connect [SQL instance] --user=postgres --quiet
+Password: supersecret!
+postgres=> \c orders;
+Password: supersecret!
+orders=> select * from distribution_centers;
+orders=> insert into distribution_centers values(-89.1111,25.1111,'Houston TX',11);
+orders=> select * from distribution_centers;
+orders=> \q
+
+##5.Use point-in-time recovery to create a clone that replicates the instance state at your chosen timestamp.
+##Cloned instance name = postgres-orders-pitr
+$ gcloud sql instances clone retail-postgres30 [Cloned instance name] --point-in-time '2023-02-23 05:56:02+00:00'
+When you see "STATUS: RUNNABLE" ==> success!
+
+
+
+--
+Congratulations! You have completed this Challenge Lab!
