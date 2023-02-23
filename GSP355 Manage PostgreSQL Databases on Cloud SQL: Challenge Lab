@@ -1,5 +1,6 @@
 GSP355 Manage PostgreSQL Databases on Cloud SQL: Challenge Lab
 https://www.cloudskillsboost.google/focuses/23465?parent=catalog
+Video reference: https://youtu.be/3ygc1eWcdVo
 
 This lab is recommended for students who have enrolled in the "Manage PostgreSQL Databases on Cloud SQL" quest.
 https://www.cloudskillsboost.google/quests/186
@@ -153,7 +154,6 @@ Password = DMS_1s_cool!   (from instructions)
 Region = us-central1      (from instructions)
 > CREATE
 
-
 ##3.Create a new continuous Database Migration Service job.
 (left pane) Migration jobs > CREATE MIGRATION JOB 
 #Get started
@@ -232,6 +232,8 @@ Password: supersecret!
 orders=> \dt
 orders=> grant select on [table_name] to "[IAM_user]";
 
+> Check my progress > Step Completed!
+
 
 
 --
@@ -269,6 +271,8 @@ orders=> \q
 ##Cloned instance name = postgres-orders-pitr
 $ gcloud sql instances clone retail-postgres30 [Cloned instance name] --point-in-time '2023-02-23 05:56:02+00:00'
 When you see "STATUS: RUNNABLE" ==> success!
+
+> Check my progress > Step Completed!
 
 
 
