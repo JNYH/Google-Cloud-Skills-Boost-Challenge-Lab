@@ -1,0 +1,24 @@
+GSP381 Create and Manage Cloud Spanner Databases: Challenge Lab
+https://www.cloudskillsboost.google/focuses/54357?parent=catalog
+
+This lab is recommended for students who have enrolled in the "Create and Manage Cloud Spanner Databases" quest. 
+https://google.qwiklabs.com/quests/213
+
+In this challenge lab, you are required to perform the following tasks:
+* Create a Cloud Spanner instance.
+* Create a Cloud Spanner database.
+* Create a tables in your database.
+* Load simple datasets into tables
+* Load a complex dataset.
+* Add a new column to an existing table.
+
+
+
+--
+This lab is pretty straightforward. Just follow this YouTube video:
+https://youtu.be/V5NyNMI26jc
+
+
+
+--
+##Congratulations! Done with the challenge lab!
