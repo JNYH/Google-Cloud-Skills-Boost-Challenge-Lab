@@ -7,4 +7,4 @@ When you take a challenge lab, you will not be taught new Google Cloud concepts.
 
 To score 100% you must successfully complete all tasks within the time period!
 
-Are you ready for the challenge?
+Are you ready for the challenge? Let's do it!
